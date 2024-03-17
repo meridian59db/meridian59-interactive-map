@@ -135,11 +135,18 @@
     var darkMode = localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
 
     var marker = L.icon({
-      iconUrl: 'marker.png',
-      iconSize: [25, 60],
+      iconUrl: 'mypos.png',
+      iconSize: [30, 30],
       iconAnchor: [20, 40],
       popupAnchor: [10, -30]
     })
+
+    var myLocationIcon = L.icon({
+        iconUrl: 'marker.png',
+        iconSize: [30, 31],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+      })
 
     // Initialize the map
     const map = L.map('map', {
@@ -184,12 +191,7 @@
         map.removeLayer(myCurrentPosition);
       }
 
-      var myLocationIcon = L.icon({
-        iconUrl: 'mypos.png',
-        iconSize: [30, 30],
-        iconAnchor: [20, 40],
-        popupAnchor: [0, -40]
-      })
+      
 
       var currentPositionMapMarker = L.marker([lat, lng], { icon: myLocationIcon }).addTo(map)
         .bindPopup("You are here");
