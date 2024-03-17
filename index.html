@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meridian59 - Interactive Map</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- Include Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <!-- Include Leaflet JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://releases.jquery.com/git/jquery-git.min.js"></script>
+  <!-- Include Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <!-- Include Leaflet JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <!-- Include Leaflet Control Geocoder CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <!-- Include Leaflet Control Geocoder JavaScript -->
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <!-- jQuery UI library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <!-- jQuery UI CSS (optional, for styling) -->
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+  <script src="mapNames.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background-color: #212121;
+      color: white;
+    }
+
+    #map {
+      width: 100%;
+      height: 90vh;
+    }
+
+    .leaflet-tooltip {
+      display: none;
+    }
+
+    /* CSS to hide the tooltip pointer */
+    .leaflet-tooltip:before {
+      display: none;
+    }
+
+    .leaflet-top {
+      display: none !important;
+    }
+
+    section {
+      border-bottom: white;
+      margin: 2px;
+      padding: 0.5%;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5%;
+    }
+
+    #search {
+      outline: none;
+      z-index: 999999;
+      border-radius: 5px;
+      border-color: transparent;
+    }
+
+    #map {
+      z-index: 10;
+      background-color: #2F2F2F;
+    }
+
+    .leaflet-bottom {
+      display: none;
+    }
+
+    #link {
+      color: white;
+      text-decoration: underline;
+      margin-left: 5px;
+    }
+  </style>
+
+  <section>
+    <input type="text" id="search" placeholder="Search a map name" />
+
+    <select disabled>
+      <option value="">Main-land</option>"
+    </select>
+
+    <label for="dark">
+      Darkmode?
+      <input id="dark" type="checkbox" />
+    </label>
+  </section>
+
+  <!--<input id="placename" placeholder="place" />
+  <input type="textarea" id="copy" />-->
+</head>
+
+<body>
+  <div id="map"></div>
+  <footer>
+    This map was donated by Atan, who inherited them from Dr. Scrote and was Adapted by Magnus Clarke to be interactive
+    using <a href="https://leafletjs.com/"><span id="link">Leaflet</span></a>.
+  </footer>
+  <script>
+    search = '';
+
+    let lastSelectedMap = undefined;
+    let myCurrentPosition = undefined;
+
+    var darkMode = localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
+
+    var marker = L.icon({
+      iconUrl: 'marker.png',
+      iconSize: [25, 60],
+      iconAnchor: [20, 40],
+      popupAnchor: [10, -30]
+    })
+
+    // Initialize the map
+    const map = L.map('map', {
+      maxBounds: [
+        [-90, -180],
+        [90, 180]
+      ],
+      center: [51.50048998936459, -0.08522987365722658],
+    }).setView([51.50048998936459, -0.08522987365722658], 15);
+
+    var transparentIcon = L.icon({
+      iconUrl: 'transparent.png',
+      iconSize: [0, 0],
+      iconAnchor: [0, 0]
+    })
+
+    var imageBounds = [[51.49, -0.11], [51.51, -0.06]];
+    var regularImageOverlay = L.imageOverlay('map-mainland.png', imageBounds);
+    var darkModeImageOverlay = L.imageOverlay('map-mainland-dark.png', imageBounds);
+
+    if (darkMode) {
+      map.removeLayer(regularImageOverlay);
+      darkModeImageOverlay.addTo(map);
+    } else {
+      map.removeLayer(darkModeImageOverlay);
+      regularImageOverlay.addTo(map);
+    }
+
+    mapNamesWithCoords.map(mapObject => {
+      // Add markers for interactivity
+      L.marker([mapObject.x, mapObject.y], { icon: transparentIcon }).addTo(map)
+        .bindPopup(mapObject.name + " " + mapObject.x);
+    })
+
+    // Event listener for mouse click
+    map.on('click', function (e) {
+      // e.latlng contains the coordinates where the click occurred
+      var lat = e.latlng.lat;
+      var lng = e.latlng.lng;
+
+      if (myCurrentPosition !== undefined) {
+        map.removeLayer(myCurrentPosition);
+      }
+
+      var myLocationIcon = L.icon({
+        iconUrl: 'mypos.png',
+        iconSize: [30, 30],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+      })
+
+      var currentPositionMapMarker = L.marker([lat, lng], { icon: myLocationIcon }).addTo(map)
+        .bindPopup("You are here");
+
+      console.log(`x: ${lat} y: ${lng}`)
+
+      myCurrentPosition = currentPositionMapMarker;
+
+      // persist maps used to gather new maps
+      /*
+      console.log("x: " + lat + ", y: " + lng);
+
+      const name = $('#placename').val();
+
+      console.log(name)
+
+      $('#copy').val(`{ name: "${name.toUpperCase()}", x: ${lat}, y: ${lng} }`);
+
+      const allMaps = JSON.parse(localStorage.getItem('mapNamesWithCoords'));
+      let newArray = [...allMaps];
+      if (!newArray.includes(map => map.name.toLowerCase()) && name !== undefined && name !== "") {
+        newArray.push({ name: name.toUpperCase(), x: lat, y: lng });
+        const newMapValues = JSON.stringify(newArray);
+        localStorage.setItem('mapNamesWithCoords', newMapValues);
+      mapNamesWithCoords = newMapValues;
+
+      $('#placename').removeData();
+      } else {
+        alert('já existe');
+      }*/
+    });
+
+    var geocoder = L.Control.geocoder().addTo(map);
+
+    // Wait for the document to be ready
+    $(document).ready(function () {
+      //$('#darkMode').prop('checked', JSON.parse(localStorage.getItem('darkMode')));
+      $('#dark').attr('checked', JSON.parse(localStorage.getItem('darkMode')));
+
+      // Attach change event handler to the input field
+      $('#search').change(function () {
+        // Get the value of the input field
+        var inputValue = $(this).val();
+      });
+
+      $('#placename').change(function () {
+        // Get the value of the input field
+        var inputValue = $(this).val();
+      });
+
+      // Autocompletion
+      $("#search").autocomplete({
+        source: mapNamesWithCoords.map(map => {
+          return map.name;
+        }),
+        select: function (event, ui) {
+          var selectedValue = ui.item.value;
+          console.log("Selected: " + selectedValue);
+
+          const foundMap = mapNamesWithCoords.find(map => map.name.toLowerCase().includes(selectedValue.toLowerCase()));
+          if (foundMap && selectedValue !== undefined) {
+            if (lastSelectedMap !== undefined) {
+              map.removeLayer(lastSelectedMap);
+            }
+
+            var foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
+              .bindPopup(foundMap.name);
+
+            map.setView([foundMap.x, foundMap.y], 15.5);
+
+            lastSelectedMap = foundMapMarker;
+
+            $('#search').val("").trigger("change");
+          } else {
+            alert('not found');
+          }
+        }
+      });
+    });
+
+    // Search box
+    $('#search').on("keypress", function (event) {
+      if (event.which == 13) {
+        event.preventDefault();
+        const inputValue = $("#search").val();
+
+        const foundMap = mapNamesWithCoords.find(map => map.name.toLowerCase().includes(inputValue.toLowerCase()));
+        if (foundMap && inputValue !== undefined) {
+          if (lastSelectedMap !== undefined) {
+            map.removeLayer(lastSelectedMap);
+          }
+
+          var foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
+            .bindPopup(foundMap.name);
+
+          map.setView([foundMap.x, foundMap.y], 15.5);
+
+          lastSelectedMap = foundMapMarker;
+        }
+      }
+    });
+
+    // Dark mode checkbox
+    $('#dark').change(function () {
+      if ($(this).is(":checked")) {
+        map.removeLayer(regularImageOverlay);
+        darkModeImageOverlay.addTo(map);
+      } else {
+        map.removeLayer(darkModeImageOverlay);
+        regularImageOverlay.addTo(map);
+      }
+      localStorage.setItem("darkMode", !JSON.parse(localStorage.getItem("darkMode")))
+    });
+  </script>
+</body>
+
+
+
+</html>
