@@ -4,8 +4,8 @@ Hello, its Magnus Clarke here, and I don't know much how I could help with the g
 
 Reference image: http://www.gilcon.net/meridian/map-get.asp?ID=1
 
-Credits:
-meridian59
-This map was donated by Atan, who inherited them from Dr. Scrote
-Vinicius Modesto (vmc) for helping me with ideas and some code hints.
-Guild members of The Brazilian Boys, for inspiring me
+Credits:  
+- meridian59  
+- This map was donated by Atan, who inherited them from Dr. Scrote  
+- Vinicius Modesto (vmc) for helping me with ideas and some code hints.  
+- Guild members of The Brazilian Boys, for inspiring me  
