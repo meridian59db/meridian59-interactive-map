@@ -523,7 +523,7 @@ const mapNamesWithCoords = [
     y: -0.0678384304046631,
   },
   {
-    name: "RINJA RUINS",
+    name: "RIIJA RUINS",
     x: 51.50106926933968,
     y: -0.06785988807678224,
   },
