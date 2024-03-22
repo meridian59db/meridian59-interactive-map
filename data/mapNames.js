@@ -48,11 +48,13 @@ const mapNamesWithCoords = [
     name: "SEAFARERS PEAK",
     x: 51.50108931376486,
     y: -0.1081681251525879,
+    node: true
   },
   {
     name: "THE DREADED CAVES OF ICE",
     x: 51.501092653113666,
     y: -0.10549664497375488,
+    node: true
   },
   {
     name: "THE HILLS",
@@ -118,6 +120,7 @@ const mapNamesWithCoords = [
     name: "JASPER",
     x: 51.495766080721666,
     y: -0.09742856025695802,
+    bank: true
   },
   {
     name: "LAKE OF JALA'S SONG",
@@ -148,6 +151,7 @@ const mapNamesWithCoords = [
     name: "THE UNDERWORLD",
     x: 51.509049626274454,
     y: -0.09471416473388673,
+    node: true
   },
   {
     name: "SANDY SHORES OF THE GREAT OCEAN",
@@ -178,6 +182,7 @@ const mapNamesWithCoords = [
     name: "PORTS OF BARLOQUE",
     x: 51.5077277132604,
     y: -0.08399605751037598,
+    vault: true
   },
   {
     name: "NORTH BARLOQUE",
@@ -243,6 +248,7 @@ const mapNamesWithCoords = [
     name: "THE BADLANDS",
     x: 51.50104280434615,
     y: -0.08394241333007814,
+    node: true
   },
   {
     name: "THE BADLANDS 2",
@@ -268,6 +274,7 @@ const mapNamesWithCoords = [
     name: "THE CITY OF TOS",
     x: 51.49839122998451,
     y: -0.08129239082336427,
+    bank: true,
   },
   {
     name: "OFF THE BEATEN PATH NORTH",
@@ -290,9 +297,10 @@ const mapNamesWithCoords = [
     y: -0.09204268455505372,
   },
   {
-    name: "A DEEP DARK SPOOKY ICKY CAVE",
+    name: "A DEEP, DARK, SPOOKY, ICKY CAVE",
     x: 51.498411055281274,
     y: -0.08936047554016113,
+    node: true
   },
   {
     name: "THE SPIDERS NEST",
@@ -323,11 +331,13 @@ const mapNamesWithCoords = [
     name: "AN ANCIENT PLACE ITS ORIGIN FORGOTTEN",
     x: 51.49310151198221,
     y: -0.09206414222717287,
+    node: true
   },
   {
     name: "UNDER THE SHADOW OF THE SENTINEL",
     x: 51.493108191092944,
     y: -0.08933901786804199,
+    node: true
   },
   {
     name: "OUTSIDE CASTLE VICTORIA",
@@ -343,6 +353,7 @@ const mapNamesWithCoords = [
     name: "CASTLE VICTORIA UPSTAIRS",
     x: 51.49575979115504,
     y: -0.08396387100219728,
+    node: true
   },
   {
     name: "THE BASEMENT",
@@ -358,6 +369,7 @@ const mapNamesWithCoords = [
     name: "UKGOTH HOLY LAND OF TROLLS",
     x: 51.49310131133628,
     y: -0.08667826652526857,
+    node: true
   },
   {
     name: "THE CRAGGED MOUNTAINS",
@@ -373,6 +385,7 @@ const mapNamesWithCoords = [
     name: "MARTYR'S BATTLEGROUND",
     x: 51.49177214881992,
     y: -0.08394241333007814,
+    node: true
   },
   {
     name: "EAST SIDE OF TOS",

@@ -18,7 +18,7 @@
   <meta
     content="Meridian 59 was the first 3D massively multiplayer game, released in 1996. It's back, and it's free to play! With this interactive map, things can be easier when moving trough them"
     name="description">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
   <!-- Include Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <!-- Include Leaflet JavaScript -->
@@ -38,72 +38,16 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <!-- jQuery UI CSS (optional, for styling) -->
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-  <script src="mapNames.js"></script>
-  <style>
-    body {
-      margin: 0;
-      background-color: #212121;
-      color: white;
-    }
+  <link rel="stylesheet" href="./css/styles.css">
+  <script src="./data/mapNames.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./js/popup.js"></script>
 
-    #map {
-      width: 100%;
-      height: 90vh;
-    }
-
-    .leaflet-tooltip {
-      display: none;
-    }
-
-    /* CSS to hide the tooltip pointer */
-    .leaflet-tooltip:before {
-      display: none;
-    }
-
-    .leaflet-top {
-      display: none !important;
-    }
-
-    section {
-      border-bottom: white;
-      margin: 2px;
-      padding: 0.5%;
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-
-    footer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.5%;
-    }
-
-    #search {
-      outline: none;
-      z-index: 999999;
-      border-radius: 5px;
-      border-color: transparent;
-    }
-
-    #map {
-      z-index: 10;
-      background-color: #2F2F2F;
-    }
-
-    .leaflet-bottom {
-      display: none;
-    }
-
-    #link {
-      color: white;
-      text-decoration: underline;
-      margin-left: 5px;
-    }
-  </style>
-
-  <section>
+  <!--<input id="placename" placeholder="place" />
+  <input type="textarea" id="copy" />-->
+</head>
+<section>
+  <div>
     <input type="text" id="search" placeholder="Search a map name" />
 
     <select disabled>
@@ -114,11 +58,10 @@
       Darkmode?
       <input id="dark" type="checkbox" />
     </label>
-  </section>
+  </div>
 
-  <!--<input id="placename" placeholder="place" />
-  <input type="textarea" id="copy" />-->
-</head>
+  <div class="help">?</div>
+</section>
 
 <body>
   <div id="map"></div>
@@ -135,18 +78,18 @@
     var darkMode = localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
 
     var marker = L.icon({
-      iconUrl: 'mypos.png',
+      iconUrl: './assets/images/mypos.png',
       iconSize: [30, 30],
       iconAnchor: [20, 40],
       popupAnchor: [10, -30]
     })
 
     var myLocationIcon = L.icon({
-        iconUrl: 'marker.png',
-        iconSize: [30, 31],
-        iconAnchor: [20, 40],
-        popupAnchor: [0, -40]
-      })
+      iconUrl: './assets/images/marker.png',
+      iconSize: [30, 31],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40]
+    })
 
     // Initialize the map
     const map = L.map('map', {
@@ -155,17 +98,18 @@
         [90, 180]
       ],
       center: [51.50048998936459, -0.08522987365722658],
+      doubleClickZoom: false
     }).setView([51.50048998936459, -0.08522987365722658], 15);
 
     var transparentIcon = L.icon({
-      iconUrl: 'transparent.png',
+      iconUrl: './assets/images/transparent.png',
       iconSize: [0, 0],
       iconAnchor: [0, 0]
     })
 
     var imageBounds = [[51.49, -0.11], [51.51, -0.06]];
-    var regularImageOverlay = L.imageOverlay('map-mainland.png', imageBounds);
-    var darkModeImageOverlay = L.imageOverlay('map-mainland-dark.png', imageBounds);
+    var regularImageOverlay = L.imageOverlay('./assets/images/map-mainland.png', imageBounds);
+    var darkModeImageOverlay = L.imageOverlay('./assets/images/map-mainland-dark.png', imageBounds);
 
     if (darkMode) {
       map.removeLayer(regularImageOverlay);
@@ -177,54 +121,70 @@
 
     mapNamesWithCoords.map(mapObject => {
       // Add markers for interactivity
+      const manaNode = mapObject.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
+      const vault = mapObject.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
+      const bank = mapObject.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
+      const img = mapObject.print !== undefined ? mapObject.print : 'wip.png';
+      const all = manaNode + vault + bank;
       L.marker([mapObject.x, mapObject.y], { icon: transparentIcon }).addTo(map)
-        .bindPopup(mapObject.name + " " + mapObject.x);
+        .bindPopup('<div id="tooltip"><b>' + prettifyName(mapObject.name) + `</b><br /><a href="./assets/prints/${mapObject.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
     })
 
     // Event listener for mouse click
     map.on('click', function (e) {
       // e.latlng contains the coordinates where the click occurred
-      var lat = e.latlng.lat;
-      var lng = e.latlng.lng;
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      const currentTime = new Date().getTime();
+      const lastClickTime = $(this).data('last-click-time');
 
-      if (myCurrentPosition !== undefined) {
-        map.removeLayer(myCurrentPosition);
+      if (lastClickTime && (currentTime - lastClickTime) < 300) {
+        // Double click detected
+        console.log('Double click detected');
+
+        if (myCurrentPosition !== undefined) {
+          map.removeLayer(myCurrentPosition);
+        }
+
+        const currentPositionMapMarker = L.marker([lat, lng], { icon: myLocationIcon }).addTo(map)
+          .bindPopup("You are here");
+
+        //console.log(`x: ${lat} y: ${lng}`)
+
+        myCurrentPosition = currentPositionMapMarker;
+
+        // persist maps used to gather new maps
+        /*
+        console.log("x: " + lat + ", y: " + lng);
+  
+        const name = $('#placename').val();
+  
+        console.log(name)
+  
+        $('#copy').val(`{ name: "${name.toUpperCase()}", x: ${lat}, y: ${lng} }`);
+  
+        const allMaps = JSON.parse(localStorage.getItem('mapNamesWithCoords'));
+        let newArray = [...allMaps];
+        if (!newArray.includes(map => map.name.toLowerCase()) && name !== undefined && name !== "") {
+          newArray.push({ name: name.toUpperCase(), x: lat, y: lng });
+          const newMapValues = JSON.stringify(newArray);
+          localStorage.setItem('mapNamesWithCoords', newMapValues);
+        mapNamesWithCoords = newMapValues;
+  
+        $('#placename').removeData();
+        } else {
+          alert('já existe');
+        }*/
       }
-
-      
-
-      var currentPositionMapMarker = L.marker([lat, lng], { icon: myLocationIcon }).addTo(map)
-        .bindPopup("You are here");
-
-      console.log(`x: ${lat} y: ${lng}`)
-
-      myCurrentPosition = currentPositionMapMarker;
-
-      // persist maps used to gather new maps
-      /*
-      console.log("x: " + lat + ", y: " + lng);
-
-      const name = $('#placename').val();
-
-      console.log(name)
-
-      $('#copy').val(`{ name: "${name.toUpperCase()}", x: ${lat}, y: ${lng} }`);
-
-      const allMaps = JSON.parse(localStorage.getItem('mapNamesWithCoords'));
-      let newArray = [...allMaps];
-      if (!newArray.includes(map => map.name.toLowerCase()) && name !== undefined && name !== "") {
-        newArray.push({ name: name.toUpperCase(), x: lat, y: lng });
-        const newMapValues = JSON.stringify(newArray);
-        localStorage.setItem('mapNamesWithCoords', newMapValues);
-      mapNamesWithCoords = newMapValues;
-
-      $('#placename').removeData();
-      } else {
-        alert('já existe');
-      }*/
+      $(this).data('last-click-time', currentTime);
     });
 
-    var geocoder = L.Control.geocoder().addTo(map);
+    let geocoder = L.Control.geocoder().addTo(map);
+
+    // To make it easier to search
+    $(document).on("keypress", function (event) {
+      $('#search').focus();
+    })
 
     // Wait for the document to be ready
     $(document).ready(function () {
@@ -234,37 +194,57 @@
       // Attach change event handler to the input field
       $('#search').change(function () {
         // Get the value of the input field
-        var inputValue = $(this).val();
+        const inputValue = $(this).val();
       });
 
       $('#placename').change(function () {
         // Get the value of the input field
-        var inputValue = $(this).val();
+        const inputValue = $(this).val();
       });
 
       // Autocompletion
       $("#search").autocomplete({
         source: mapNamesWithCoords.map(map => {
-          return map.name;
+          return prettifyName(map.name);
         }),
         select: function (event, ui) {
-          var selectedValue = ui.item.value;
-          console.log("Selected: " + selectedValue);
+          const selectedValue = ui.item.value;
+          //console.log("Selected: " + selectedValue);
 
           const foundMap = mapNamesWithCoords.find(map => map.name.toLowerCase() === selectedValue.toLowerCase());
           if (foundMap && selectedValue !== undefined) {
+            const manaNode = foundMap.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
+            const vault = foundMap.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
+            const bank = foundMap.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
+            const img = foundMap.print !== undefined ? foundMap.print : 'wip.png';
+            const all = manaNode + vault + bank;
             if (lastSelectedMap !== undefined) {
               map.removeLayer(lastSelectedMap);
             }
 
-            var foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
-              .bindPopup(foundMap.name);
+            const foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
+              .bindPopup('<div id="tooltip"><b>' + prettifyName(foundMap.name) + `</b><br /><a href="./assets/prints/${foundMap.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
+
+            /*foundMapMarker.on('mouseover', function (e) {
+              this.openPopup();
+            });
+
+            foundMapMarker.on('mouseout', function (e) {
+              this.closePopup();
+            });*/
+
+            foundMapMarker.openPopup();
+            setTimeout(() => {
+              foundMapMarker.closePopup();
+            }, 3000);
 
             map.setView([foundMap.x, foundMap.y], 15.5);
 
             lastSelectedMap = foundMapMarker;
 
-            $('#search').val("").trigger("change");
+            $("#search").val("");
+
+            return false;
           } else {
             alert('not found');
           }
@@ -280,16 +260,36 @@
 
         const foundMap = mapNamesWithCoords.find(map => map.name.toLowerCase().includes(inputValue.toLowerCase()));
         if (foundMap && inputValue !== undefined) {
+          const manaNode = foundMap.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
+          const vault = foundMap.vault ? `<img id="small-icon" src="./assets/images/vault.png"/> Vault<br/>` : '';
+          const bank = foundMap.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
+          const img = foundMap.print !== undefined ? foundMap.print : 'wip.png';
+          const all = manaNode + vault + bank;
           if (lastSelectedMap !== undefined) {
             map.removeLayer(lastSelectedMap);
           }
 
           var foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
-            .bindPopup(foundMap.name);
+            .bindPopup('<div id="tooltip"><b>' + prettifyName(foundMap.name) + `</b><br /><a href="./assets/prints/${foundMap.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
 
           map.setView([foundMap.x, foundMap.y], 15.5);
 
+          foundMapMarker.openPopup();
+          setTimeout(() => {
+            foundMapMarker.closePopup();
+          }, 3000);
+
+          /*foundMapMarker.on('mouseover', function (e) {
+            this.openPopup();
+          });
+
+          foundMapMarker.on('mouseout', function (e) {
+            this.closePopup();
+          });*/
+
           lastSelectedMap = foundMapMarker;
+
+          $("#search").val('');
         }
       }
     });
