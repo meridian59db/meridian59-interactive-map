@@ -55,8 +55,9 @@
     </select>
 
     <label for="dark">
+      <!-- Desativado enquanto não resolver o BUG Dark/Light Zoom
       Darkmode?
-      <input id="dark" type="checkbox" />
+      <input id="dark" type="checkbox" />-->
     </label>
   </div>
 
@@ -108,8 +109,8 @@
     })
 
     var imageBounds = [[51.49, -0.11], [51.51, -0.06]];
-    var regularImageOverlay = L.imageOverlay('./assets/images/map-mainland.png', imageBounds);
-    var darkModeImageOverlay = L.imageOverlay('./assets/images/map-mainland-dark.png', imageBounds);
+    var regularImageOverlay = L.imageOverlay('./assets/images/map-mainland.svg', imageBounds);
+    var darkModeImageOverlay = L.imageOverlay('./assets/images/map-mainland-dark.svg', imageBounds);
 
     if (darkMode) {
       map.removeLayer(regularImageOverlay);
@@ -305,9 +306,31 @@
       }
       localStorage.setItem("darkMode", !JSON.parse(localStorage.getItem("darkMode")))
     });
+
+    var darkOverlay = L.imageOverlay('./assets/images/map-mainland-dark-overlay.svg', imageBounds);
+    // Adicione a imagem sobreposta
+
+    // Função para adicionar a imagem sobreposta apenas em uma área específica quando o zoom é aplicado
+    function addOverlayImageIfZoomedIn(latlng) {
+      const zoomLevelThreshold = 18; // Defina o nível de zoom para ativar a imagem sobreposta
+
+      if (darkMode) {
+        if (map.getZoom() >= zoomLevelThreshold) {
+          map.removeLayer(darkModeImageOverlay)
+          darkOverlay.addTo(map);
+        } if (map.getZoom() < zoomLevelThreshold) {
+          map.removeLayer(darkOverlay);
+          darkModeImageOverlay.addTo(map);
+        }
+      }
+
+    }
+
+    // Evento de zoomend para chamar a função addOverlayImageIfZoomedIn
+    map.on('zoomend', function () {
+      addOverlayImageIfZoomedIn(map.getCenter());
+    });
+    
   </script>
 </body>
-
-
-
 </html>
