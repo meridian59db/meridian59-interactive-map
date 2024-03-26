@@ -39,6 +39,11 @@ footer {
   padding: 0.5%;
 }
 
+footer > abbr {
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
 #search, select {
   outline: none;
   z-index: 999999;

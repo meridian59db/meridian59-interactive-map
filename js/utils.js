@@ -13,11 +13,14 @@ function prettifyName(name) {
 
   // Function to capitalize the first letter of each word except the ones in lowercaseWords
   function capitalize(word, index) {
-      if (index !== 0 && lowercaseWords.includes(word.toLowerCase())) {
-          return word.toLowerCase();
-      } else {
-          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-      }
+    // Special handling for (South) or (North)
+    if (word.startsWith("(") && word.endsWith(")")) {
+      return word.charAt(0) + word.charAt(1).toUpperCase() + word.slice(2).toLowerCase();
+    } else if (index !== 0 && lowercaseWords.includes(word.toLowerCase())) {
+      return word.toLowerCase();
+    } else {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }
   }
 
   // Capitalize each word and join them back into a string
