@@ -80,7 +80,7 @@
     let lastSelectedMap = undefined;
     let myCurrentPosition = undefined;
 
-    var darkMode = localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
+    var darkMode = true // localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
 
     var marker = L.icon({
       iconUrl: './assets/images/mypos.png',
