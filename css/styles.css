@@ -143,3 +143,18 @@ footer > abbr {
   display: flex;
   align-items: center;
 }
+
+#readd {
+  display: none;
+  gap: 15px;
+}
+
+.green {
+  color: #22c94c;
+}
+
+.ui-autocomplete {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 400px;
+}

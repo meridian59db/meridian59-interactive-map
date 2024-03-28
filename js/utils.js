@@ -28,3 +28,21 @@ function prettifyName(name) {
 
   return prettifiedName;
 }
+
+/**
+ * Call this in console to clear the map in storage
+ */
+function clear() {
+  localStorage.setItem('mapNamesWithCoords', JSON.stringify([]));
+  window.location.reload();
+}
+
+/**
+ * Undo the addition
+ */
+function undo() {
+  let current = JSON.parse(localStorage.getItem('mapNamesWithCoords'));
+  console.log(new Date().getTime(), current);
+  current.pop();
+  localStorage.setItem('mapNamesWithCoords', JSON.stringify(current));
+}
