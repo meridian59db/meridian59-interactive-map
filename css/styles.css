@@ -156,5 +156,5 @@ footer > abbr {
 .ui-autocomplete {
   overflow-y: auto;
   overflow-x: hidden;
-  height: 400px;
+  max-height: 400px;
 }

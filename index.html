@@ -87,7 +87,7 @@
   <script>
     search = '';
 
-    const mapNamesWithCoords = editMode ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : [...mapNamesWithCoordsReal, ...innerCityMapNamesWithCoords];
+    const mapNamesWithCoords = editMode ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : [...mapNamesWithCoordsReal, ...innerCityMapNamesWithCoords.map(innerMap => { return { ...innerMap, inner: true } })];
 
     let lastSelectedMap = undefined;
     let myCurrentPosition = undefined;
@@ -263,7 +263,11 @@
               foundMapMarker.closePopup();
             }, 3000);
 
-            map.setView([foundMap.x, foundMap.y], 15.5);
+            if (!foundMap.inner) {
+              map.setView([foundMap.x, foundMap.y], 15.5);
+            } else {
+              map.setView([foundMap.x, foundMap.y], 18.2);
+            }
 
             lastSelectedMap = foundMapMarker;
 
@@ -297,7 +301,11 @@
           var foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
             .bindPopup('<div id="tooltip"><b>' + prettifyName(foundMap.name) + `</b><br /><a href="./assets/prints/${foundMap.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
 
-          map.setView([foundMap.x, foundMap.y], 15.5);
+          if (!foundMap.inner) {
+            map.setView([foundMap.x, foundMap.y], 15.5);
+          } else {
+            map.setView([foundMap.x, foundMap.y], 18.2);
+          }
 
           foundMapMarker.openPopup();
           setTimeout(() => {
