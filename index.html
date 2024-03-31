@@ -348,11 +348,9 @@
 
       if (darkMode) {
         if (map.getZoom() >= zoomLevelThreshold) {
-          map.removeLayer(darkModeImageOverlay)
           darkOverlay.addTo(map);
         } if (map.getZoom() < zoomLevelThreshold) {
           map.removeLayer(darkOverlay);
-          darkModeImageOverlay.addTo(map);
         }
       }
 
