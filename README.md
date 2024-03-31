@@ -9,3 +9,5 @@ Credits:
 - This map was donated by Atan, who inherited them from Dr. Scrote  
 - Vinicius Modesto (vmc) for helping me with ideas and some code hints.  
 - Guild members of The Brazilian Boys, for inspiring me  
+- MurLoK-F for improving the quality of the map with his hq vectors
+- [alexatiks](https://github.com/alexatiks/Leaflet.SmoothWheelZoom) - for creating the leaflet smooth wheel zoom plugin: 

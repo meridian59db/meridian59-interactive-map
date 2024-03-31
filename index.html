@@ -36,22 +36,23 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <!-- jQuery UI library -->
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="./js/smooth.js"></script>
   <!-- jQuery UI CSS (optional, for styling) -->
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
   <link rel="stylesheet" href="./css/styles.css">
   <script src="./data/mapNames.js"></script>
+  <script src="./data/innerCityNames.js"></script>
   <script src="./js/utils.js"></script>
   <script src="./js/popup.js"></script>
+  <script src="./js/config.js"></script>
 
-  <!-- IF READDING MAPS, UNCOMMENT THIS BLOCK -->
-  <!--<input id="placename" placeholder="place" />
-  <input disabled type="textarea" id="copy" />-->
+  <div id="readdingMaps"></div>
 </head>
 <section>
   <div>
     <input type="text" id="search" placeholder="Search a map name" />
 
-    <select disabled>
+    <select id="select-map" disabled>
       <option value="">Main-land</option>"
     </select>
 
@@ -60,6 +61,16 @@
       Darkmode?
       <input id="dark" type="checkbox" />-->
     </label>
+
+
+    <div id="readd">
+      <input id="placename" placeholder="place" />
+      <input disabled type="textarea" id="copy" />
+      <button id="undo">UNDO</button>
+      <button disabled id="clear">Clear MAP</button>
+      EDIT MODE: <span class="green">ON</span>
+    </div>
+
   </div>
 
   <div class="help">?</div>
@@ -68,19 +79,20 @@
 <body>
   <div id="map"></div>
   <footer>
-    This map was donated by Atan, who inherited them from Dr. Scrote and was Adapted by <abbr title="wyvern800">Magnus Clarke</abbr> to be interactive
-    using <a href="https://leafletjs.com/"><span id="link">Leaflet</span></a>, and Remastered by <abbr title="Invocalidade">murkokf</abbr>.
+    This map was donated by Atan, who inherited them from Dr. Scrote and was Adapted by <abbr title="wyvern800">Magnus
+      Clarke</abbr> to be interactive
+    using <a href="https://leafletjs.com/"><span id="link">Leaflet</span></a>, and Remastered by <abbr
+      title="Invocalidade">MurLoK-F</abbr>.
   </footer>
   <script>
     search = '';
-    
-    const mapNamesWithCoords = mapNamesWithCoordsReal;
-    //const mapNamesWithCoords = JSON.parse(localStorage.getItem('mapNamesWithCoords')); // IF READDING MAPS, COMMENT LINE ABOVE, AND UNCOMMENT THE BELOW LINE; 
+
+    const mapNamesWithCoords = editMode ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : [...mapNamesWithCoordsReal, ...innerCityMapNamesWithCoords.map(innerMap => { return { ...innerMap, inner: true } })];
 
     let lastSelectedMap = undefined;
     let myCurrentPosition = undefined;
 
-    var darkMode = localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
+    var darkMode = true // localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
 
     var marker = L.icon({
       iconUrl: './assets/images/mypos.png',
@@ -103,7 +115,8 @@
         [90, 180]
       ],
       center: [51.50048998936459, -0.08522987365722658],
-      doubleClickZoom: false
+      doubleClickZoom: false,
+      scrollWheelZoom: false, // disable original zoom function
     }).setView([51.50048998936459, -0.08522987365722658], 15);
 
     var transparentIcon = L.icon({
@@ -131,7 +144,7 @@
       const bank = mapObject.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
       const img = mapObject.print !== undefined ? mapObject.print : 'wip.png';
       const all = manaNode + vault + bank;
-      L.marker([mapObject.x, mapObject.y], { icon: transparentIcon }).addTo(map)
+      L.marker([mapObject.x, mapObject.y], !editMode ? { icon: transparentIcon } : undefined).addTo(map)
         .bindPopup('<div id="tooltip"><b>' + prettifyName(mapObject.name) + `</b><br /><a href="./assets/prints/${mapObject.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
     })
 
@@ -154,37 +167,37 @@
         const currentPositionMapMarker = L.marker([lat, lng], { icon: myLocationIcon }).addTo(map)
           .bindPopup("You are here");
 
-        // UNCOMMENT IF READDING MAPS
-        /*L.marker([lat, lng]).addTo(map)
-        .bindPopup("You are here");*/
-
-        //console.log(`x: ${lat} y: ${lng}`)
-
         myCurrentPosition = currentPositionMapMarker;
 
-        // UNCOMMENT IF READDING MAPS
-        // persist maps used to gather new maps - 
-        
-        /*console.log("x: " + lat + ", y: " + lng);
-  
-        const name = $('#placename').val();
-  
-        console.log(name)
-  
-        $('#copy').val(`{ name: "${name.toUpperCase()}", x: ${lat}, y: ${lng} }`);
-  
-        const allMaps = JSON.parse(localStorage.getItem('mapNamesWithCoords'));
-        let newArray = [...allMaps];
-        if (!newArray.includes(map => map.name.toLowerCase()) && name !== undefined && name !== "") {
-          newArray.push({ name: name.toUpperCase(), x: lat, y: lng });
-          const newMapValues = JSON.stringify(newArray);
-          localStorage.setItem('mapNamesWithCoords', newMapValues);
-        mapNamesWithCoords = newMapValues;
-  
-        $('#placename').removeData();
-        } else {
-          alert('já existe');
-        }*/
+        // Part used on edit mode
+        if (editMode) {
+          L.marker([lat, lng]).addTo(map)
+            .bindPopup(map.name);
+
+          console.log(`x: ${lat} y: ${lng}`)
+
+          console.log("x: " + lat + ", y: " + lng);
+
+          const name = $('#placename').val();
+
+          console.log(name)
+
+          $('#copy').val(`{ name: "${name.toUpperCase()}", x: ${lat}, y: ${lng} }`);
+
+          const allMaps = JSON.parse(localStorage.getItem('mapNamesWithCoords'));
+          let newArray = [...allMaps];
+          if (!newArray.includes(map => map.name.toLowerCase()) && name !== undefined && name !== "") {
+            newArray.push({ name: name.toUpperCase(), x: lat, y: lng });
+            const newMapValues = JSON.stringify(newArray);
+            localStorage.setItem('mapNamesWithCoords', newMapValues);
+            mapNamesWithCoords = newMapValues;
+
+            $('#placename').removeData();
+            $("#search").val("");
+          } else {
+            alert('já existe');
+          }
+        }
       }
       $(this).data('last-click-time', currentTime);
     });
@@ -198,7 +211,7 @@
 
     // Wait for the document to be ready
     $(document).ready(function () {
-      //$('#darkMode').prop('checked', JSON.parse(localStorage.getItem('darkMode')));
+
       $('#dark').attr('checked', JSON.parse(localStorage.getItem('darkMode')));
 
       // Attach change event handler to the input field
@@ -212,7 +225,7 @@
         const inputValue = $(this).val();
       });
 
-      
+
 
       // Autocompletion
       $("#search").autocomplete({
@@ -250,7 +263,11 @@
               foundMapMarker.closePopup();
             }, 3000);
 
-            map.setView([foundMap.x, foundMap.y], 15.5);
+            if (!foundMap.inner) {
+              map.setView([foundMap.x, foundMap.y], 15.5);
+            } else {
+              map.setView([foundMap.x, foundMap.y], 18.2);
+            }
 
             lastSelectedMap = foundMapMarker;
 
@@ -284,7 +301,11 @@
           var foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
             .bindPopup('<div id="tooltip"><b>' + prettifyName(foundMap.name) + `</b><br /><a href="./assets/prints/${foundMap.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
 
-          map.setView([foundMap.x, foundMap.y], 15.5);
+          if (!foundMap.inner) {
+            map.setView([foundMap.x, foundMap.y], 15.5);
+          } else {
+            map.setView([foundMap.x, foundMap.y], 18.2);
+          }
 
           foundMapMarker.openPopup();
           setTimeout(() => {
@@ -327,11 +348,9 @@
 
       if (darkMode) {
         if (map.getZoom() >= zoomLevelThreshold) {
-          map.removeLayer(darkModeImageOverlay)
           darkOverlay.addTo(map);
         } if (map.getZoom() < zoomLevelThreshold) {
           map.removeLayer(darkOverlay);
-          darkModeImageOverlay.addTo(map);
         }
       }
 
@@ -341,7 +360,18 @@
     map.on('zoomend', function () {
       addOverlayImageIfZoomedIn(map.getCenter());
     });
-    
+
+    // When we click to clear the array
+    $('#clear').on("click", function () {
+      clear();
+      alert('map cleared')
+    })
+    $('#undo').on("click", function () {
+      undo();
+      alert('undo')
+    })
+
   </script>
 </body>
+
 </html>
