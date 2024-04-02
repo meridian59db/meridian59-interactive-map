@@ -46,3 +46,27 @@ function undo() {
   current.pop();
   localStorage.setItem('mapNamesWithCoords', JSON.stringify(current));
 }
+
+/**
+ * gets the current url params
+ * 
+ * @returns 
+ */
+function getUrlParams() {
+  var params = {};
+  var queryString = window.location.search.substring(1);
+  var vars = queryString.split("&");
+  for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split("=");
+      params[pair[0]] = decodeURIComponent(pair[1]);
+  }
+  return params;
+}
+
+/**
+ * Changes the url params
+ * @param {string} newURI The new URI
+ */
+function changeUrlParams(newURI) {
+  window.history.replaceState({}, document.title, newURI);
+}

@@ -6,7 +6,7 @@ $(document).ready(function () {
   $(".help").click(function (e) {
     // Create the popup element
     var popup = $(
-      '<div id="popup" class="popup"><span class="title">Help</span><br><br>- Type anything to search, or click on the selectbox, it should mark the destination<br>- If you double-click the canvas, it will mark your current spot<br/>- You can click the destination marks to have a small description of the place you are going, and see if the map has special npcs <div class="center">Click anywhere to close.</div></div>'
+      '<div id="popup" class="popup"><span class="title">Help</span><br><br>- Type anything to search, or click on the selectbox, it should mark the destination<br>- If you double-click the canvas, it will mark your current spot<br/>- You can click the destination marks to have a small description of the place you are going, and see if the map has special npcs.<br/>- You can now search for a map, and the URL should change to the destination url with query string, then you can copy and paste to your friend so they can find the destinations easily <div class="center">Click anywhere to close.</div></div>'
     );
 
     // Append the popup to the body
