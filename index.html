@@ -91,6 +91,7 @@
 
     let lastSelectedMap = undefined;
     let myCurrentPosition = undefined;
+    let innerLayer = false;
 
     var darkMode = true // localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
 
@@ -158,7 +159,7 @@
 
       if (lastClickTime && (currentTime - lastClickTime) < 300) {
         // Double click detected
-        console.log('Double click detected');
+        //console.log('Double click detected');
 
         if (myCurrentPosition !== undefined) {
           map.removeLayer(myCurrentPosition);
@@ -168,6 +169,9 @@
           .bindPopup("You are here");
 
         myCurrentPosition = currentPositionMapMarker;
+
+        const newURL = `${window.location.href.split('?')[0]}?x=${lat}&y=${lng}&inner=${innerLayer}`;
+        changeUrlParams(newURL);
 
         // Part used on edit mode
         if (editMode) {
@@ -193,6 +197,7 @@
             mapNamesWithCoords = newMapValues;
 
             $('#placename').removeData();
+
             $("#search").val("");
           } else {
             alert('já existe');
@@ -211,7 +216,6 @@
 
     // Wait for the document to be ready
     $(document).ready(function () {
-
       $('#dark').attr('checked', JSON.parse(localStorage.getItem('darkMode')));
 
       // Attach change event handler to the input field
@@ -225,8 +229,6 @@
         const inputValue = $(this).val();
       });
 
-
-
       // Autocompletion
       $("#search").autocomplete({
         source: mapNamesWithCoords.map(map => {
@@ -234,51 +236,30 @@
         }),
         select: function (event, ui) {
           const selectedValue = ui.item.value;
-          //console.log("Selected: " + selectedValue);
-
-          const foundMap = mapNamesWithCoords.find(map => map.name.toLowerCase() === selectedValue.toLowerCase());
-          if (foundMap && selectedValue !== undefined) {
-            const manaNode = foundMap.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
-            const vault = foundMap.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
-            const bank = foundMap.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
-            const img = foundMap.print !== undefined ? foundMap.print : 'wip.png';
-            const all = manaNode + vault + bank;
-            if (lastSelectedMap !== undefined) {
-              map.removeLayer(lastSelectedMap);
-            }
-
-            const foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
-              .bindPopup('<div id="tooltip"><b>' + prettifyName(foundMap.name) + `</b><br /><a href="./assets/prints/${foundMap.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
-
-            /*foundMapMarker.on('mouseover', function (e) {
-              this.openPopup();
-            });
-
-            foundMapMarker.on('mouseout', function (e) {
-              this.closePopup();
-            });*/
-
-            foundMapMarker.openPopup();
-            setTimeout(() => {
-              foundMapMarker.closePopup();
-            }, 3000);
-
-            if (!foundMap.inner) {
-              map.setView([foundMap.x, foundMap.y], 15.5);
-            } else {
-              map.setView([foundMap.x, foundMap.y], 18.2);
-            }
-
-            lastSelectedMap = foundMapMarker;
-
-            $("#search").val("");
-
-            return false;
-          } else {
-            alert('not found');
-          }
+          markPlace(selectedValue);
+          $("#search").val("");
+          return false;
         }
       });
+
+      // gets the url
+      var params = getUrlParams();
+      const xIsNumber = !isNaN(Number(params.x)) && params.hasOwnProperty('x');
+      const yIsNumber = !isNaN(Number(params.y)) && params.hasOwnProperty('y');
+      const isInner = params.hasOwnProperty('inner');
+
+      if (xIsNumber && yIsNumber) {
+        const coordsData = {
+          x: Number(params.x),
+          y: Number(params.y),
+          inner: params.inner
+        }
+        markPlaceFromCoords(coordsData);
+        changeUrlParams("/");
+      } else if (params.hasOwnProperty('where') && typeof params.where === 'string') {
+        markPlace(decodeURI(params.where));
+        changeUrlParams("/");
+      }
     });
 
     // Search box
@@ -286,44 +267,8 @@
       if (event.which == 13) {
         event.preventDefault();
         const inputValue = $("#search").val();
-
-        const foundMap = mapNamesWithCoords.find(map => map.name.toLowerCase().includes(inputValue.toLowerCase()));
-        if (foundMap && inputValue !== undefined) {
-          const manaNode = foundMap.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
-          const vault = foundMap.vault ? `<img id="small-icon" src="./assets/images/vault.png"/> Vault<br/>` : '';
-          const bank = foundMap.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
-          const img = foundMap.print !== undefined ? foundMap.print : 'wip.png';
-          const all = manaNode + vault + bank;
-          if (lastSelectedMap !== undefined) {
-            map.removeLayer(lastSelectedMap);
-          }
-
-          var foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
-            .bindPopup('<div id="tooltip"><b>' + prettifyName(foundMap.name) + `</b><br /><a href="./assets/prints/${foundMap.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
-
-          if (!foundMap.inner) {
-            map.setView([foundMap.x, foundMap.y], 15.5);
-          } else {
-            map.setView([foundMap.x, foundMap.y], 18.2);
-          }
-
-          foundMapMarker.openPopup();
-          setTimeout(() => {
-            foundMapMarker.closePopup();
-          }, 3000);
-
-          /*foundMapMarker.on('mouseover', function (e) {
-            this.openPopup();
-          });
-
-          foundMapMarker.on('mouseout', function (e) {
-            this.closePopup();
-          });*/
-
-          lastSelectedMap = foundMapMarker;
-
-          $("#search").val('');
-        }
+        markPlace(inputValue);
+        $("#search").val('');
       }
     });
 
@@ -349,11 +294,12 @@
       if (darkMode) {
         if (map.getZoom() >= zoomLevelThreshold) {
           darkOverlay.addTo(map);
+          innerLayer = true;
         } if (map.getZoom() < zoomLevelThreshold) {
           map.removeLayer(darkOverlay);
+          innerLayer = false;
         }
       }
-
     }
 
     // Evento de zoomend para chamar a função addOverlayImageIfZoomedIn
@@ -366,11 +312,82 @@
       clear();
       alert('map cleared')
     })
+
     $('#undo').on("click", function () {
       undo();
       alert('undo')
     })
 
+    /**
+     * Marks the spot
+     * @param selectedValue valor
+     **/
+    function markPlace(selectedValue) {
+      const foundMap = mapNamesWithCoords.find(map => map.name.toLowerCase() === selectedValue.toLowerCase());
+      if (foundMap && selectedValue !== undefined) {
+        const manaNode = foundMap.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
+        const vault = foundMap.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
+        const bank = foundMap.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
+        const img = foundMap.print !== undefined ? foundMap.print : 'wip.png';
+        const all = manaNode + vault + bank;
+
+        if (lastSelectedMap !== undefined) {
+          map.removeLayer(lastSelectedMap);
+        }
+
+        const foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
+          .bindPopup('<div id="tooltip"><b>' + prettifyName(foundMap.name) + `</b><br /><a href="./assets/prints/${foundMap.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
+
+        /*foundMapMarker.on('mouseover', function (e) {
+          this.openPopup();
+        });
+
+        foundMapMarker.on('mouseout', function (e) {
+          this.closePopup();
+        });*/
+
+        foundMapMarker.openPopup();
+        setTimeout(() => {
+          foundMapMarker.closePopup();
+        }, 3000);
+
+        if (!foundMap.inner) {
+          map.setView([foundMap.x, foundMap.y], 15.5);
+        } else {
+          map.setView([foundMap.x, foundMap.y], 18.2);
+        }
+
+        lastSelectedMap = foundMapMarker;
+
+        const newURL = `${window.location.href.split('?')[0]}?where=${encodeURI(foundMap.name.toLowerCase())}`;
+        changeUrlParams(newURL);
+
+        $("#search").val("");
+      } else {
+        alert('not found');
+      }
+    }
+
+    /**
+     * Marks the place from URL
+     **/
+    function markPlaceFromCoords(coords) {
+      if (lastSelectedMap !== undefined) {
+        map.removeLayer(lastSelectedMap);
+      }
+
+      const foundMapMarker = L.marker([coords.x, coords.y], { icon: marker }).addTo(map);
+
+      if (coords.inner === 'false') {
+        map.setView([coords.x, coords.y], 15.5);
+      } else {
+        map.setView([coords.x, coords.y], 18.2);
+      }
+
+      lastSelectedMap = foundMapMarker;
+
+      $("#search").val("");
+    }
   </script>
 </body>
 
