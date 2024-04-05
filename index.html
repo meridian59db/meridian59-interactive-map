@@ -41,9 +41,6 @@
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
   <link rel="stylesheet" href="./css/styles.css">
 
-  <!--<script src="./data/mapsData/main/mapNames.js"></script>
-  <script src="./data/mapsData/main/innerCityNames.js"></script>-->
-
   <script type="module" src="./data/availableMaps.js" defer></script>
 
   <script src="./js/utils.js"></script>
@@ -57,13 +54,6 @@
     <input type="text" id="search" placeholder="Search a map name" />
 
     <select id="select-map"></select>
-
-    <label for="dark">
-      <!-- Desativado enquanto não resolver o BUG Dark/Light Zoom
-      Darkmode?
-      <input id="dark" type="checkbox" />-->
-    </label>
-
 
     <div id="readd">
       <input id="placename" placeholder="place" />
@@ -89,15 +79,11 @@
   <script type="module">
     import { availableMaps, getMapData } from "./data/availableMaps.js";
 
-    var selectedMap = 'main';
-
-    const mapNamesWithCoords = editMode ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : getMapData(selectedMap)?.mapData;
-
+    var selectedMap;
+    var mapNamesWithCoords;
     let lastSelectedMap = undefined;
     let myCurrentPosition = undefined;
     let innerLayer = false;
-
-    //var darkMode = true // localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
 
     var marker = L.icon({
       iconUrl: './assets/images/mypos.png',
@@ -130,21 +116,10 @@
       iconAnchor: [0, 0]
     })
 
+    console.log('arroba 1')
     var imageBounds = [[51.49, -0.11], [51.51, -0.06]];
     var imageOverlay = L.imageOverlay(getMapData(selectedMap)?.imgOverlayBase, imageBounds);
-
     imageOverlay.addTo(map);
-
-    mapNamesWithCoords.map(mapObject => {
-      // Add markers for interactivity
-      const manaNode = mapObject.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
-      const vault = mapObject.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
-      const bank = mapObject.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
-      const img = mapObject.print !== undefined ? mapObject.print : 'wip.png';
-      const all = manaNode + vault + bank;
-      L.marker([mapObject.x, mapObject.y], !editMode ? { icon: transparentIcon } : undefined).addTo(map)
-        .bindPopup('<div id="tooltip"><b>' + prettifyName(mapObject.name) + `</b><br /><a href="./assets/prints/${mapObject.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
-    })
 
     // Event listener for mouse click
     map.on('click', function (e) {
@@ -155,9 +130,6 @@
       const lastClickTime = $(this).data('last-click-time');
 
       if (lastClickTime && (currentTime - lastClickTime) < 300) {
-        // Double click detected
-        //console.log('Double click detected');
-
         if (myCurrentPosition !== undefined) {
           map.removeLayer(myCurrentPosition);
         }
@@ -219,9 +191,14 @@
       const hasSelectedMap = params.hasOwnProperty('map');
 
       // makes the selection of the current map
-      if (hasSelectedMap) {
-        selectedMap = params.map.toLowerCase();
-      }
+      selectedMap = hasSelectedMap ? params.map.toLowerCase() : 'main';
+
+      var imageBounds = [[51.49, -0.11], [51.51, -0.06]];
+      var imageOverlay = L.imageOverlay(getMapData(selectedMap)?.imgOverlayBase, imageBounds);
+
+      imageOverlay.addTo(map);
+
+      mapNamesWithCoords = editMode ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : getMapData(selectedMap)?.mapData
 
       if (xIsNumber && yIsNumber) {
         const coordsData = {
@@ -230,11 +207,27 @@
           inner: params.inner
         }
         markPlaceFromCoords(coordsData);
-        //changeUrlParams("/");
       } else if (params.hasOwnProperty('where') && typeof params.where === 'string') {
         markPlace(decodeURI(params.where));
-        //changeUrlParams("/");
       }
+
+      /**
+       * Which data we're picking, whether the localstorage when editing or the normal data if not
+       * */
+      function getWhichData() {
+        return (editMode && localStorage.getItem('mapNamesWithCoords')) ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : getMapData(selectedMap)?.mapData;
+      }
+
+      getWhichData().map(mapObject => {
+        // Add markers for interactivity
+        const manaNode = mapObject.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
+        const vault = mapObject.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
+        const bank = mapObject.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
+        const img = mapObject.print !== undefined ? mapObject.print : 'wip.png';
+        const all = manaNode + vault + bank;
+        L.marker([mapObject.x, mapObject.y], !editMode ? { icon: transparentIcon } : undefined).addTo(map)
+          .bindPopup('<div id="tooltip"><b>' + prettifyName(mapObject.name) + `</b><br /><a href="./assets/prints/${mapObject.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
+      })
 
       // Populates the selectable maps select
       function populateSelect() {
@@ -275,7 +268,7 @@
 
       // Autocompletion
       $("#search").autocomplete({
-        source: mapNamesWithCoords.map(map => {
+        source: getMapData(selectedMap)?.mapData.map(map => {
           return prettifyName(map.name);
         }),
         select: function (event, ui) {
@@ -305,7 +298,6 @@
     function addOverlayImageIfZoomedIn(latlng) {
       const zoomLevelThreshold = 18; // Defina o nível de zoom para ativar a imagem sobreposta
 
-      console.log(getMapData(selectedMap).imgOverlayZoomed)
       if (overlayZoomed !== null) {
         if (map.getZoom() >= zoomLevelThreshold) {
           overlayZoomed.addTo(map);
@@ -338,7 +330,7 @@
      * @param selectedValue valor
      **/
     function markPlace(selectedValue) {
-      const foundMap = mapNamesWithCoords.find(map => map.name.toLowerCase() === selectedValue.toLowerCase());
+      const foundMap = getMapData(selectedMap)?.mapData.find(map => map.name.toLowerCase() === selectedValue.toLowerCase());
       if (foundMap && selectedValue !== undefined) {
         const manaNode = foundMap.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
         const vault = foundMap.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
