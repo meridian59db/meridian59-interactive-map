@@ -1,4 +1,4 @@
-const innerCityMapNamesWithCoords = [
+export const innerCityMapNamesWithCoords = [
   {
     name: "THE LIMPING TOAD INN AND TAVERN",
     x: 51.50198656599898,
@@ -207,3 +207,6 @@ const innerCityMapNamesWithCoords = [
     y: -0.07649582438686632,
   },
 ];
+
+// These maps are parsed to contain the inner prop
+export const parsedInnerMaps = innerCityMapNamesWithCoords.map(innerMap => { return { ...innerMap, inner: true } });

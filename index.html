@@ -40,8 +40,9 @@
   <!-- jQuery UI CSS (optional, for styling) -->
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
   <link rel="stylesheet" href="./css/styles.css">
-  <script src="./data/mapNames.js"></script>
-  <script src="./data/innerCityNames.js"></script>
+
+  <script type="module" src="./data/availableMaps.js" defer></script>
+
   <script src="./js/utils.js"></script>
   <script src="./js/popup.js"></script>
   <script src="./js/config.js"></script>
@@ -52,16 +53,7 @@
   <div>
     <input type="text" id="search" placeholder="Search a map name" />
 
-    <select id="select-map" disabled>
-      <option value="">Main-land</option>"
-    </select>
-
-    <label for="dark">
-      <!-- Desativado enquanto não resolver o BUG Dark/Light Zoom
-      Darkmode?
-      <input id="dark" type="checkbox" />-->
-    </label>
-
+    <select id="select-map"></select>
 
     <div id="readd">
       <input id="placename" placeholder="place" />
@@ -84,16 +76,14 @@
     using <a href="https://leafletjs.com/"><span id="link">Leaflet</span></a>, and Remastered by <abbr
       title="Invocalidade">MurLoK-F</abbr>.
   </footer>
-  <script>
-    search = '';
+  <script type="module">
+    import { availableMaps, getMapData } from "./data/availableMaps.js";
 
-    const mapNamesWithCoords = editMode ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : [...mapNamesWithCoordsReal, ...innerCityMapNamesWithCoords.map(innerMap => { return { ...innerMap, inner: true } })];
-
+    var selectedMap;
+    var mapNamesWithCoords;
     let lastSelectedMap = undefined;
     let myCurrentPosition = undefined;
     let innerLayer = false;
-
-    var darkMode = true // localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
 
     var marker = L.icon({
       iconUrl: './assets/images/mypos.png',
@@ -126,28 +116,10 @@
       iconAnchor: [0, 0]
     })
 
+    console.log('arroba 1')
     var imageBounds = [[51.49, -0.11], [51.51, -0.06]];
-    var regularImageOverlay = L.imageOverlay('./assets/images/map-mainland-dark.svg', imageBounds);
-    var darkModeImageOverlay = L.imageOverlay('./assets/images/map-mainland-dark.svg', imageBounds);
-
-    if (darkMode) {
-      map.removeLayer(regularImageOverlay);
-      darkModeImageOverlay.addTo(map);
-    } else {
-      map.removeLayer(darkModeImageOverlay);
-      regularImageOverlay.addTo(map);
-    }
-
-    mapNamesWithCoords.map(mapObject => {
-      // Add markers for interactivity
-      const manaNode = mapObject.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
-      const vault = mapObject.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
-      const bank = mapObject.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
-      const img = mapObject.print !== undefined ? mapObject.print : 'wip.png';
-      const all = manaNode + vault + bank;
-      L.marker([mapObject.x, mapObject.y], !editMode ? { icon: transparentIcon } : undefined).addTo(map)
-        .bindPopup('<div id="tooltip"><b>' + prettifyName(mapObject.name) + `</b><br /><a href="./assets/prints/${mapObject.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
-    })
+    var imageOverlay = L.imageOverlay(getMapData(selectedMap)?.imgOverlayBase, imageBounds);
+    imageOverlay.addTo(map);
 
     // Event listener for mouse click
     map.on('click', function (e) {
@@ -158,9 +130,6 @@
       const lastClickTime = $(this).data('last-click-time');
 
       if (lastClickTime && (currentTime - lastClickTime) < 300) {
-        // Double click detected
-        //console.log('Double click detected');
-
         if (myCurrentPosition !== undefined) {
           map.removeLayer(myCurrentPosition);
         }
@@ -170,7 +139,7 @@
 
         myCurrentPosition = currentPositionMapMarker;
 
-        const newURL = `${window.location.href.split('?')[0]}?x=${lat}&y=${lng}&inner=${innerLayer}`;
+        const newURL = `${window.location.href.split('?')[0]}?map=${selectedMap}&x=${lat}&y=${lng}&inner=${innerLayer}`;
         changeUrlParams(newURL);
 
         // Part used on edit mode
@@ -183,8 +152,6 @@
           console.log("x: " + lat + ", y: " + lng);
 
           const name = $('#placename').val();
-
-          console.log(name)
 
           $('#copy').val(`{ name: "${name.toUpperCase()}", x: ${lat}, y: ${lng} }`);
 
@@ -216,7 +183,65 @@
 
     // Wait for the document to be ready
     $(document).ready(function () {
-      $('#dark').attr('checked', JSON.parse(localStorage.getItem('darkMode')));
+      // gets the url
+      var params = getUrlParams();
+      const xIsNumber = !isNaN(Number(params.x)) && params.hasOwnProperty('x');
+      const yIsNumber = !isNaN(Number(params.y)) && params.hasOwnProperty('y');
+      const isInner = params.hasOwnProperty('inner');
+      const hasSelectedMap = params.hasOwnProperty('map');
+
+      // makes the selection of the current map
+      selectedMap = hasSelectedMap ? params.map.toLowerCase() : 'main';
+
+      var imageBounds = [[51.49, -0.11], [51.51, -0.06]];
+      var imageOverlay = L.imageOverlay(getMapData(selectedMap)?.imgOverlayBase, imageBounds);
+
+      imageOverlay.addTo(map);
+
+      mapNamesWithCoords = editMode ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : getMapData(selectedMap)?.mapData
+
+      if (xIsNumber && yIsNumber) {
+        const coordsData = {
+          x: Number(params.x),
+          y: Number(params.y),
+          inner: params.inner
+        }
+        markPlaceFromCoords(coordsData);
+      } else if (params.hasOwnProperty('where') && typeof params.where === 'string') {
+        markPlace(decodeURI(params.where));
+      }
+
+      /**
+       * Which data we're picking, whether the localstorage when editing or the normal data if not
+       * */
+      function getWhichData() {
+        return (editMode && localStorage.getItem('mapNamesWithCoords')) ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : getMapData(selectedMap)?.mapData;
+      }
+
+      getWhichData().map(mapObject => {
+        // Add markers for interactivity
+        const manaNode = mapObject.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
+        const vault = mapObject.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
+        const bank = mapObject.bank ? '<img id="small-icon" src="./assets/images/bank.png"/> Bank<br/>' : '';
+        const img = mapObject.print !== undefined ? mapObject.print : 'wip.png';
+        const all = manaNode + vault + bank;
+        L.marker([mapObject.x, mapObject.y], !editMode ? { icon: transparentIcon } : undefined).addTo(map)
+          .bindPopup('<div id="tooltip"><b>' + prettifyName(mapObject.name) + `</b><br /><a href="./assets/prints/${mapObject.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
+      })
+
+      // Populates the selectable maps select
+      function populateSelect() {
+        const select = $('#select-map');
+        $.each(availableMaps, function (_, item) {
+          select.append($('<option>', {
+            value: item.urlName,
+            text: item.alias
+          }));
+        });
+        $('#select-map').val(selectedMap);
+      }
+
+      populateSelect();
 
       // Attach change event handler to the input field
       $('#search').change(function () {
@@ -229,9 +254,21 @@
         const inputValue = $(this).val();
       });
 
+      // Change selected map
+      $('#select-map').change(function () {
+        // Get the value of the input field
+        const inputValue = $(this).val();
+
+        selectedMap = inputValue;
+
+        changeUrlParams(replaceQueryStringValue('map', inputValue, ["where"]));
+
+        window.location.reload();
+      });
+
       // Autocompletion
       $("#search").autocomplete({
-        source: mapNamesWithCoords.map(map => {
+        source: getMapData(selectedMap)?.mapData.map(map => {
           return prettifyName(map.name);
         }),
         select: function (event, ui) {
@@ -241,25 +278,6 @@
           return false;
         }
       });
-
-      // gets the url
-      var params = getUrlParams();
-      const xIsNumber = !isNaN(Number(params.x)) && params.hasOwnProperty('x');
-      const yIsNumber = !isNaN(Number(params.y)) && params.hasOwnProperty('y');
-      const isInner = params.hasOwnProperty('inner');
-
-      if (xIsNumber && yIsNumber) {
-        const coordsData = {
-          x: Number(params.x),
-          y: Number(params.y),
-          inner: params.inner
-        }
-        markPlaceFromCoords(coordsData);
-        changeUrlParams("/");
-      } else if (params.hasOwnProperty('where') && typeof params.where === 'string') {
-        markPlace(decodeURI(params.where));
-        changeUrlParams("/");
-      }
     });
 
     // Search box
@@ -272,31 +290,20 @@
       }
     });
 
-    // Dark mode checkbox
-    $('#dark').change(function () {
-      if ($(this).is(":checked")) {
-        map.removeLayer(regularImageOverlay);
-        darkModeImageOverlay.addTo(map);
-      } else {
-        map.removeLayer(darkModeImageOverlay);
-        regularImageOverlay.addTo(map);
-      }
-      localStorage.setItem("darkMode", !JSON.parse(localStorage.getItem("darkMode")))
-    });
-
-    var darkOverlay = L.imageOverlay('./assets/images/map-mainland-dark-overlay.svg', imageBounds);
-    // Adicione a imagem sobreposta
+    var overlayZoomed = (getMapData(selectedMap).imgOverlayZoomed !== ''
+      && getMapData(selectedMap).imgOverlayZoomed !== undefined) ?
+      L.imageOverlay(getMapData(selectedMap).imgOverlayZoomed, imageBounds) : null;
 
     // Função para adicionar a imagem sobreposta apenas em uma área específica quando o zoom é aplicado
     function addOverlayImageIfZoomedIn(latlng) {
       const zoomLevelThreshold = 18; // Defina o nível de zoom para ativar a imagem sobreposta
 
-      if (darkMode) {
+      if (overlayZoomed !== null) {
         if (map.getZoom() >= zoomLevelThreshold) {
-          darkOverlay.addTo(map);
+          overlayZoomed.addTo(map);
           innerLayer = true;
         } if (map.getZoom() < zoomLevelThreshold) {
-          map.removeLayer(darkOverlay);
+          map.removeLayer(overlayZoomed);
           innerLayer = false;
         }
       }
@@ -323,7 +330,7 @@
      * @param selectedValue valor
      **/
     function markPlace(selectedValue) {
-      const foundMap = mapNamesWithCoords.find(map => map.name.toLowerCase() === selectedValue.toLowerCase());
+      const foundMap = getMapData(selectedMap)?.mapData.find(map => map.name.toLowerCase() === selectedValue.toLowerCase());
       if (foundMap && selectedValue !== undefined) {
         const manaNode = foundMap.node ? '<img id="small-icon" src="./assets/images/node.png" /> Mana node<br/>' : '';
         const vault = foundMap.vault ? '<img id="small-icon" src="./assets/images/vault.png" /> Vault<br/>' : '';
@@ -338,14 +345,6 @@
         const foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
           .bindPopup('<div id="tooltip"><b>' + prettifyName(foundMap.name) + `</b><br /><a href="./assets/prints/${foundMap.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
 
-        /*foundMapMarker.on('mouseover', function (e) {
-          this.openPopup();
-        });
-
-        foundMapMarker.on('mouseout', function (e) {
-          this.closePopup();
-        });*/
-
         foundMapMarker.openPopup();
         setTimeout(() => {
           foundMapMarker.closePopup();
@@ -359,12 +358,10 @@
 
         lastSelectedMap = foundMapMarker;
 
-        const newURL = `${window.location.href.split('?')[0]}?where=${encodeURI(foundMap.name.toLowerCase())}`;
+        const newURL = `${window.location.href.split('?')[0]}?map=${selectedMap}&where=${encodeURI(foundMap.name.toLowerCase())}`;
         changeUrlParams(newURL);
 
         $("#search").val("");
-      } else {
-        alert('not found');
       }
     }
 

@@ -70,3 +70,20 @@ function getUrlParams() {
 function changeUrlParams(newURI) {
   window.history.replaceState({}, document.title, newURI);
 }
+
+function replaceQueryStringValue(key, value, toRemove) {
+  const url = new URL(window.location.href);
+  const searchParams = url.searchParams;
+
+  // Replace or add the new value
+  toRemove.forEach(remove => {
+    searchParams.delete(remove);
+  });
+  searchParams.set(key, value);
+
+  // Reconstruct the URL with the modified query string
+  url.search = searchParams.toString();
+
+  // Replace the current URL with the modified one
+  return url.toString();
+}

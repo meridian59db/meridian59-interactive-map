@@ -1,4 +1,4 @@
-const mapNamesWithCoordsReal = [
+export const mapNamesWithCoordsReal = [
   {
     "name": "MARION",
     "x": 51.50227677274598,
