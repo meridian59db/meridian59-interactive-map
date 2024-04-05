@@ -40,8 +40,12 @@
   <!-- jQuery UI CSS (optional, for styling) -->
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
   <link rel="stylesheet" href="./css/styles.css">
-  <script src="./data/mapNames.js"></script>
-  <script src="./data/innerCityNames.js"></script>
+
+  <!--<script src="./data/mapsData/main/mapNames.js"></script>
+  <script src="./data/mapsData/main/innerCityNames.js"></script>-->
+
+  <script type="module" src="./data/availableMaps.js" defer></script>
+
   <script src="./js/utils.js"></script>
   <script src="./js/popup.js"></script>
   <script src="./js/config.js"></script>
@@ -52,9 +56,7 @@
   <div>
     <input type="text" id="search" placeholder="Search a map name" />
 
-    <select id="select-map" disabled>
-      <option value="">Main-land</option>"
-    </select>
+    <select id="select-map"></select>
 
     <label for="dark">
       <!-- Desativado enquanto não resolver o BUG Dark/Light Zoom
@@ -84,16 +86,18 @@
     using <a href="https://leafletjs.com/"><span id="link">Leaflet</span></a>, and Remastered by <abbr
       title="Invocalidade">MurLoK-F</abbr>.
   </footer>
-  <script>
-    search = '';
+  <script type="module">
+    import { availableMaps, getMapData } from "./data/availableMaps.js";
 
-    const mapNamesWithCoords = editMode ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : [...mapNamesWithCoordsReal, ...innerCityMapNamesWithCoords.map(innerMap => { return { ...innerMap, inner: true } })];
+    var selectedMap = 'main';
+
+    const mapNamesWithCoords = editMode ? JSON.parse(localStorage.getItem('mapNamesWithCoords')) : getMapData(selectedMap)?.mapData;
 
     let lastSelectedMap = undefined;
     let myCurrentPosition = undefined;
     let innerLayer = false;
 
-    var darkMode = true // localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
+    //var darkMode = true // localStorage.getItem('darkMode') !== undefined ? JSON.parse(localStorage.getItem('darkMode')) : false;
 
     var marker = L.icon({
       iconUrl: './assets/images/mypos.png',
@@ -127,16 +131,9 @@
     })
 
     var imageBounds = [[51.49, -0.11], [51.51, -0.06]];
-    var regularImageOverlay = L.imageOverlay('./assets/images/map-mainland-dark.svg', imageBounds);
-    var darkModeImageOverlay = L.imageOverlay('./assets/images/map-mainland-dark.svg', imageBounds);
+    var imageOverlay = L.imageOverlay(getMapData(selectedMap)?.imgOverlayBase, imageBounds);
 
-    if (darkMode) {
-      map.removeLayer(regularImageOverlay);
-      darkModeImageOverlay.addTo(map);
-    } else {
-      map.removeLayer(darkModeImageOverlay);
-      regularImageOverlay.addTo(map);
-    }
+    imageOverlay.addTo(map);
 
     mapNamesWithCoords.map(mapObject => {
       // Add markers for interactivity
@@ -170,7 +167,7 @@
 
         myCurrentPosition = currentPositionMapMarker;
 
-        const newURL = `${window.location.href.split('?')[0]}?x=${lat}&y=${lng}&inner=${innerLayer}`;
+        const newURL = `${window.location.href.split('?')[0]}?map=${selectedMap}&x=${lat}&y=${lng}&inner=${innerLayer}`;
         changeUrlParams(newURL);
 
         // Part used on edit mode
@@ -183,8 +180,6 @@
           console.log("x: " + lat + ", y: " + lng);
 
           const name = $('#placename').val();
-
-          console.log(name)
 
           $('#copy').val(`{ name: "${name.toUpperCase()}", x: ${lat}, y: ${lng} }`);
 
@@ -216,7 +211,44 @@
 
     // Wait for the document to be ready
     $(document).ready(function () {
-      $('#dark').attr('checked', JSON.parse(localStorage.getItem('darkMode')));
+      // gets the url
+      var params = getUrlParams();
+      const xIsNumber = !isNaN(Number(params.x)) && params.hasOwnProperty('x');
+      const yIsNumber = !isNaN(Number(params.y)) && params.hasOwnProperty('y');
+      const isInner = params.hasOwnProperty('inner');
+      const hasSelectedMap = params.hasOwnProperty('map');
+
+      // makes the selection of the current map
+      if (hasSelectedMap) {
+        selectedMap = params.map.toLowerCase();
+      }
+
+      if (xIsNumber && yIsNumber) {
+        const coordsData = {
+          x: Number(params.x),
+          y: Number(params.y),
+          inner: params.inner
+        }
+        markPlaceFromCoords(coordsData);
+        //changeUrlParams("/");
+      } else if (params.hasOwnProperty('where') && typeof params.where === 'string') {
+        markPlace(decodeURI(params.where));
+        //changeUrlParams("/");
+      }
+
+      // Populates the selectable maps select
+      function populateSelect() {
+        const select = $('#select-map');
+        $.each(availableMaps, function (_, item) {
+          select.append($('<option>', {
+            value: item.urlName,
+            text: item.alias
+          }));
+        });
+        $('#select-map').val(selectedMap);
+      }
+
+      populateSelect();
 
       // Attach change event handler to the input field
       $('#search').change(function () {
@@ -227,6 +259,18 @@
       $('#placename').change(function () {
         // Get the value of the input field
         const inputValue = $(this).val();
+      });
+
+      // Change selected map
+      $('#select-map').change(function () {
+        // Get the value of the input field
+        const inputValue = $(this).val();
+
+        selectedMap = inputValue;
+
+        changeUrlParams(replaceQueryStringValue('map', inputValue, ["where"]));
+
+        window.location.reload();
       });
 
       // Autocompletion
@@ -241,25 +285,6 @@
           return false;
         }
       });
-
-      // gets the url
-      var params = getUrlParams();
-      const xIsNumber = !isNaN(Number(params.x)) && params.hasOwnProperty('x');
-      const yIsNumber = !isNaN(Number(params.y)) && params.hasOwnProperty('y');
-      const isInner = params.hasOwnProperty('inner');
-
-      if (xIsNumber && yIsNumber) {
-        const coordsData = {
-          x: Number(params.x),
-          y: Number(params.y),
-          inner: params.inner
-        }
-        markPlaceFromCoords(coordsData);
-        changeUrlParams("/");
-      } else if (params.hasOwnProperty('where') && typeof params.where === 'string') {
-        markPlace(decodeURI(params.where));
-        changeUrlParams("/");
-      }
     });
 
     // Search box
@@ -272,31 +297,21 @@
       }
     });
 
-    // Dark mode checkbox
-    $('#dark').change(function () {
-      if ($(this).is(":checked")) {
-        map.removeLayer(regularImageOverlay);
-        darkModeImageOverlay.addTo(map);
-      } else {
-        map.removeLayer(darkModeImageOverlay);
-        regularImageOverlay.addTo(map);
-      }
-      localStorage.setItem("darkMode", !JSON.parse(localStorage.getItem("darkMode")))
-    });
-
-    var darkOverlay = L.imageOverlay('./assets/images/map-mainland-dark-overlay.svg', imageBounds);
-    // Adicione a imagem sobreposta
+    var overlayZoomed = (getMapData(selectedMap).imgOverlayZoomed !== ''
+      && getMapData(selectedMap).imgOverlayZoomed !== undefined) ?
+      L.imageOverlay(getMapData(selectedMap).imgOverlayZoomed, imageBounds) : null;
 
     // Função para adicionar a imagem sobreposta apenas em uma área específica quando o zoom é aplicado
     function addOverlayImageIfZoomedIn(latlng) {
       const zoomLevelThreshold = 18; // Defina o nível de zoom para ativar a imagem sobreposta
 
-      if (darkMode) {
+      console.log(getMapData(selectedMap).imgOverlayZoomed)
+      if (overlayZoomed !== null) {
         if (map.getZoom() >= zoomLevelThreshold) {
-          darkOverlay.addTo(map);
+          overlayZoomed.addTo(map);
           innerLayer = true;
         } if (map.getZoom() < zoomLevelThreshold) {
-          map.removeLayer(darkOverlay);
+          map.removeLayer(overlayZoomed);
           innerLayer = false;
         }
       }
@@ -338,14 +353,6 @@
         const foundMapMarker = L.marker([foundMap.x, foundMap.y], { icon: marker }).addTo(map)
           .bindPopup('<div id="tooltip"><b>' + prettifyName(foundMap.name) + `</b><br /><a href="./assets/prints/${foundMap.print}" target="_blank"><img class="miniature" src="./assets/prints/${img}" /></a><br><div class="description">${all}</div></div>`);
 
-        /*foundMapMarker.on('mouseover', function (e) {
-          this.openPopup();
-        });
-
-        foundMapMarker.on('mouseout', function (e) {
-          this.closePopup();
-        });*/
-
         foundMapMarker.openPopup();
         setTimeout(() => {
           foundMapMarker.closePopup();
@@ -359,12 +366,10 @@
 
         lastSelectedMap = foundMapMarker;
 
-        const newURL = `${window.location.href.split('?')[0]}?where=${encodeURI(foundMap.name.toLowerCase())}`;
+        const newURL = `${window.location.href.split('?')[0]}?map=${selectedMap}&where=${encodeURI(foundMap.name.toLowerCase())}`;
         changeUrlParams(newURL);
 
         $("#search").val("");
-      } else {
-        alert('not found');
       }
     }
 
