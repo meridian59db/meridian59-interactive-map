@@ -10,4 +10,5 @@ Credits:
 - Vinicius Modesto (vmc) for helping me with ideas and some code hints.  
 - Guild members of The Brazilian Boys, for inspiring me  
 - MurLoK-F for improving the quality of the map with his hq vectors
+- Ruggerii - Helped with the feature of adding multiple maps
 - [alexatiks](https://github.com/alexatiks/Leaflet.SmoothWheelZoom) - for creating the leaflet smooth wheel zoom plugin: 
