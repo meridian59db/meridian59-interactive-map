@@ -287,15 +287,14 @@
       }
     });
 
-    var overlayZoomed = (getMapData(selectedMap).imgOverlayZoomed !== ''
-      && getMapData(selectedMap).imgOverlayZoomed !== undefined) ?
+    var overlayZoomed = (getMapData(selectedMap).imgOverlayZoomed !== '' && getMapData(selectedMap).imgOverlayZoomed !== undefined) ?
       L.imageOverlay(getMapData(selectedMap).imgOverlayZoomed, imageBounds) : null;
 
     // Função para adicionar a imagem sobreposta apenas em uma área específica quando o zoom é aplicado
     function addOverlayImageIfZoomedIn(latlng) {
       const zoomLevelThreshold = 18; // Defina o nível de zoom para ativar a imagem sobreposta
 
-      if (overlayZoomed !== null) {
+      if (getMapData(selectedMap).imgOverlayZoomed !== '' && getMapData(selectedMap).imgOverlayZoomed !== undefined) {
         if (map.getZoom() >= zoomLevelThreshold) {
           overlayZoomed.addTo(map);
           innerLayer = true;
