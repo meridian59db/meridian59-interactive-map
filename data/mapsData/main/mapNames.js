@@ -6,169 +6,169 @@ export const mapNamesWithCoordsReal = [
     y: -0.10136604309082033
   },
   {
-    inGameName: "",
+    inGameName: "North Quilicia Wood",
     name: "NORTH QUILICIA WOOD",
     x: 51.50902595419199,
     y: -0.10142326365894407
   },
   {
-    inGameName: "",
+    inGameName: "Elhadrim",
     name: "ELHADRIM",
     x: 51.50767210368538,
     y: -0.10141968727111818
   },
   {
-    inGameName: "",
+    inGameName: "Lower Elhadrim",
     name: "LOWER ELHADRIM",
     x: 51.506396628945296,
     y: -0.10138034831470578
   },
   {
-    inGameName: "",
+    inGameName: "The Vale of Sorrows",
     name: "VALE OF SORROW",
     x: 51.507688641687764,
     y: -0.09892880927509397
   },
   {
-    inGameName: "",
+    inGameName: "Dirhadrim",
     name: "DIRHADRIM",
     x: 51.507671949250266,
     y: -0.09645044814533323
   },
   {
-    inGameName: "",
+    inGameName: "Lower Dirhadrim",
     name: "LOWER DIRHADRIM",
     x: 51.50637932081355,
     y: -0.09643614292144777
   },
   {
-    inGameName: "",
+    inGameName: "Quilicia Wood",
     name: "QUILICIA WOOD",
     x: 51.5050637684848,
     y: -0.09895741939544679
   },
   {
-    inGameName: "",
+    inGameName: "The Fey's Crossing",
     name: "THE FEY'S CROSSING",
     x: 51.50901687477226,
     y: -0.09897887706756593
   },
   {
-    inGameName: "",
+    inGameName: "The Underworld",
     name: "THE UNDERWORLD",
     x: 51.509017009877105,
     y: -0.0939309597015381
   },
   {
-    inGameName: "",
+    inGameName: "The Temple of Shal'ille",
     name: "TEMPLE OF SHALILLE",
     x: 51.50369472291189,
     y: -0.10140359401702882
   },
   {
-    inGameName: "",
-    name: "DEEP WOODS OF ILLERIA",
+    inGameName: "Deep Woods of Ileria",
+    name: "DEEP WOODS OF ILERIA",
     x: 51.50371809436255,
     y: -0.09890913963317871
   },
   {
-    inGameName: "",
-    name: "VALLEY OF ILLERIA",
+    inGameName: "Valley of Ileria",
+    name: "VALLEY OF ILERIA",
     x: 51.50371475558461,
     y: -0.09645223617553712
   },
   {
-    inGameName: "",
+    inGameName: "Seafarer's Peak",
     name: "SEAFARERS PEAK",
     x: 51.50102688277271,
     y: -0.10640323162078859
   },
   {
-    inGameName: "",
+    inGameName: "The Dreaded Caves of Ice",
     name: "THE DREADED CAVES OF ICE",
     x: 51.501030094567795,
     y: -0.10385513305664064
   },
   {
-    inGameName: "",
+    inGameName: "West Merchant Way through Ilerian Woods",
     name: "WEST MERCHANT WAY TROUGH ILLERIAN WOODS",
     x: 51.50104011149093,
     y: -0.10138750076293947
   },
   {
-    inGameName: "",
+    inGameName: "The Hills",
     name:"THE HILLS",
     x: 51.49971118045684,
     y: -0.10640323162078859
   },
   {
-    inGameName: "",
+    inGameName: "The Great Ocean",
     name:"THE GREAT OCEAN",
     x: 51.505047030425274,
     y: -0.09645760059356691
   },
   {
-    inGameName: "",
+    inGameName: "The sandy shores of the Great Ocean",
     name:"SANDY SHORES OF THE GREAT OCEAN",
     x: 51.505097110604325,
     y: -0.09392023086547852
   },
   {
-    inGameName: "",
+    inGameName: "The Sewers of Barloque",
     name:"SEWERS OF BARLOQUE",
     x: 51.50505704646549,
     y: -0.09150624275207521
   },
   {
-    inGameName: "",
+    inGameName: "Source of the River Ille",
     name:"SOURCE OF RIVER ILLE",
     x: 51.503708053804715,
     y: -0.091511607170105
   },
   {
-    inGameName: "",
+    inGameName: "East Merchant Way through Ilerian Woods",
     name:"EAST MERCHANT WAY TROUGH ILLERIAN WOODS",
     x: 51.502345811797845,
     y: -0.09392559528350831
   },
   {
-    inGameName: "",
+    inGameName: "West Merchant Way",
     name:"WEST MERCHANT WAY",
     x: 51.50101995235515,
     y: -0.09645223617553712
   },
   {
-    inGameName: "",
+    inGameName: "Druid Hills",
     name:"THE DRUID HILLS",
     x: 51.49972092967617,
     y: -0.10387122631073
   },
   {
-    inGameName: "",
+    inGameName: "Forest of Farol",
     name:"FOREST OF FAROL",
     x: 51.49973428595687,
     y: -0.10140895843505861
   },
   {
-    inGameName: "",
+    inGameName: "Deep Forest of Farol",
     name:"DEEP IN THE FOREST OF FAROL (NORTH)",
     x: 51.49973094688706,
     y: -0.09896278381347658
   },
   {
-    inGameName: "",
+    inGameName: "Faronath, home of the TreeFolk",
     name:"FARONATH HOME OF THE TREE FOLK",
     x: 51.49842201267756,
     y: -0.10139286518096925
   },
   {
-    inGameName: "",
+    inGameName: "Deep Forest of Farol",
     name:"DEEP IN THE FOREST OF FAROL",
     x: 51.49705129755664,
     y: -0.09895741972286488
   },
   {
-    inGameName: "",
+    inGameName: "The Sewers of Jasper",
     name:"JASPER SEWERS",
     x: 51.49572343861886,
     y: -0.09895741939544679
@@ -234,7 +234,7 @@ export const mapNamesWithCoordsReal = [
     y: -0.08658707141876221
   },
   {
-    inGameName: "",
+    inGameName: "The Badlands",
     name:"THE BADLANDS",
     x: 51.50107333770213,
     y: -0.08408725261688234
@@ -312,7 +312,7 @@ export const mapNamesWithCoordsReal = [
     y: -0.091511607170105
   },
   {
-    inGameName: "",
+    inGameName: "Under the shadow of the Sentinel",
     name:"UNDER THE SHADOW OF THE SENTINEL",
     x: 51.493121707556654,
     y: -0.08904397487640382
@@ -330,7 +330,7 @@ export const mapNamesWithCoordsReal = [
     y: -0.08660316467285156
   },
   {
-    inGameName: "",
+    inGameName: "Martyr's Battleground",
     name:"MARTYR'S BATTLEGROUND",
     x: 51.49175231419952,
     y: -0.08408188819885254
@@ -348,7 +348,7 @@ export const mapNamesWithCoordsReal = [
     y: -0.08409261703491212
   },
   {
-    inGameName: "",
+    inGameName: "Castle Victoria",
     name:"CASTLE VICTORIA",
     x: 51.495743180658245,
     y: -0.08656561374664307
@@ -366,19 +366,19 @@ export const mapNamesWithCoordsReal = [
     y: -0.0890117883682251
   },
   {
-    inGameName: "",
+    inGameName: "The Spider Nest",
     name:"THE SPIDERS NEST",
     x: 51.49707915311071,
     y: -0.08903861045837404
   },
   {
-    inGameName: "",
+    inGameName: "A Deep, Dark, Spooky, Icky Cave",
     name:"A DEEP, DARK, SPOOKY, ICKY CAVE",
     x: 51.498461879756384,
     y: -0.08904397487640382
   },
   {
-    inGameName: "",
+    inGameName: "The Streets of Tos",
     name:"THE CITY OF TOS",
     x: 51.49838974644954,
     y: -0.08158206939697267
@@ -402,43 +402,43 @@ export const mapNamesWithCoordsReal = [
     y: -0.07906615734100343
   },
   {
-    inGameName: "",
+    inGameName: "A spring of vitality",
     name:"HEALING SPRING",
     x: 51.49575350158755,
     y: -0.07671654224395753
   },
   {
-    inGameName: "",
+    inGameName: "Obfal's Sepulchre",
     name:"OBFAL'S SEPULCHRE",
     x: 51.49575016222607,
     y: -0.07422208786010742
   },
   {
-    inGameName: "",
+    inGameName: "Aqueducts of Merb",
     name:"ARQUEDUCTS OF MEREI",
     x: 51.494431095318724,
     y: -0.07419526576995851
   },
   {
-    inGameName: "",
+    inGameName: "The Archaic Hollows",
     name:"THE ARCHAIC HOLLOWS",
     x: 51.49309503616647,
     y: -0.07422745227813722
   },
   {
-    inGameName: "",
+    inGameName: "An Enigmatic Chamber",
     name:"AN ENIGMATIC CHAMBER",
     x: 51.49307492651725,
     y: -0.07166326045989992
   },
   {
-    inGameName: "",
+    inGameName: "Ugol's Warren Entrance",
     name:"UGOL'S WARREN ENTRANCE",
     x: 51.4917491100796,
     y: -0.07165789604187013
   },
   {
-    inGameName: "",
+    inGameName: "The Flatlands",
     name:"THE FLATLANDS",
     x: 51.50239911989169,
     y: -0.086592435836792
@@ -498,7 +498,7 @@ export const mapNamesWithCoordsReal = [
     y: -0.07908225059509279
   },
   {
-    inGameName: "",
+    inGameName: "Konima's Ascension",
     name:"KONIMA'S ASCENSION",
     x: 51.497102718740365,
     y: -0.07421135902404787
@@ -522,73 +522,73 @@ export const mapNamesWithCoordsReal = [
     y: -0.07670581340789796
   },
   {
-    inGameName: "",
+    inGameName: "Into the Jungle",
     name:"INTO THE JUNGLE (SOUTH)",
     x: 51.49844523996164,
     y: -0.07167935371398927
   },
   {
-    inGameName: "",
+    inGameName: "Outside the Mad Scientist's Hut",
     name:"OUTSIDE THE MAD SCIENTISTS HUT",
     x: 51.49848197075224,
     y: -0.06917953491210939
   },
   {
-    inGameName: "",
+    inGameName: "Avar Village",
     name:"AVAR VILLAGE",
     x: 51.49977420790907,
     y: -0.06421208381652833
   },
   {
-    inGameName: "",
+    inGameName: "The Clearing of the Trading Post",
     name:"TRADING POST",
     x: 51.499770868842205,
     y: -0.066717267036438
   },
   {
-    inGameName: "",
-    name:"ORIGIN OF THE KRIPPA",
+    inGameName: "Origin of the Kriipa",
+    name:"ORIGIN OF THE KRIIPA",
     x: 51.499740817229195,
     y: -0.06917953491210939
   },
   {
-    inGameName: "",
+    inGameName: "Path to the Ruins",
     name:"PATH TO THE RUINS",
     x: 51.49976752977504,
     y: -0.07170081138610841
   },
   {
-    inGameName: "",
+    inGameName: "Outside the Guard Tower",
     name:"OUTSIDE THE GUARD TOWER",
     x: 51.49975766095278,
     y: -0.07424890995025636
   },
   {
-    inGameName: "",
+    inGameName: "Into the Jungle",
     name:"INTO THE JUNGLE (NORTH)",
     x: 51.50107674669809,
     y: -0.07425427436828615
   },
   {
-    inGameName: "",
+    inGameName: "Camp of the Warrior Avars",
     name:"AVAR WARRIORS CAMP",
     x: 51.5010933541157,
     y: -0.07167935371398927
   },
   {
-    inGameName: "",
+    inGameName: "Ruins of the Riija Temple",
     name:"RIIJA RUINS",
     x: 51.50110003205546,
     y: -0.06916344165802003
   },
   {
-    inGameName: "",
+    inGameName: "Deep in the Jungle",
     name:"DEEP IN THE JUNGLE",
     x: 51.501130086178776,
     y: -0.06671190261840822
   },
   {
-    inGameName: "",
+    inGameName: "Headquarters of the Noble Avars",
     name:"NOBLE AVAR HEADQUARTERS",
     x: 51.50112006927541,
     y: -0.06417989730834962
@@ -600,55 +600,55 @@ export const mapNamesWithCoordsReal = [
     y: -0.06421744823455812
   },
   {
-    inGameName: "",
+    inGameName: "Territory of the Noble Avars",
     name:"TERRITORY OF THE NOBLE AVAR",
     x: 51.50246565357809,
     y: -0.06672263145446779
   },
   {
-    inGameName: "",
+    inGameName: "Turf of the Warrior Avars",
     name:"TURF OF THE AVAR WARRIORS",
     x: 51.50246917299171,
     y: -0.0692492723464966
   },
   {
-    inGameName: "",
+    inGameName: "Headquarters for the Avar Warriors",
     name:"AVAR WARRIOR HEADQUARTERS",
     x: 51.50244581906853,
     y: -0.07171690464019777
   },
   {
-    inGameName: "",
+    inGameName: "A notch in the jungle",
     name:"A NOTCH IN THE JUNGLE",
     x: 51.50240240047701,
     y: -0.07425427436828615
   },
   {
-    inGameName: "",
+    inGameName: "Lair of the Bone Priestess",
     name:"LAIR OF THE BONE PRIESTESS",
     x: 51.50379802852404,
     y: -0.06668508052825929
   },
   {
-    inGameName: "",
+    inGameName: "The Chasm",
     name:"THE CHASM",
     x: 51.50380470606745,
     y: -0.06920099258422853
   },
   {
-    inGameName: "",
+    inGameName: "The Cliffs",
     name:"THE CLIFFS",
     x: 51.50378481158255,
     y: -0.0716686248779297
   },
   {
-    inGameName: "",
+    inGameName: "The Jungle Cliffs",
     name:"THE JUNGLE CLIFFS",
     x: 51.50373139118454,
     y: -0.07428109645843507
   },
   {
-    inGameName: "",
+    inGameName: "Cliff Hive",
     name:"THE HIVE",
     x: 51.50513378039781,
     y: -0.07170081138610841
