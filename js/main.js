@@ -2,7 +2,7 @@ import { availableMaps, getMapData } from "../data/availableMaps.js";
 import { prettifyName, getUrlParams, changeUrlParams } from "./utils.js";
 
 // If we're adding more maps, leave this as true
-const editMode = true;
+const editMode = false;
 
 if (editMode && JSON.parse(localStorage.getItem("mapNamesWithCoords")) === null) 
   localStorage.setItem("mapNamesWithCoords", JSON.stringify([]));
