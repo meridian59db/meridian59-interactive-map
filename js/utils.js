@@ -4,7 +4,7 @@
  * @param { string } name 
  * @returns Prettified name
  */
-function prettifyName(name) {
+export function prettifyName(name) {
   // Split the name into words
   var words = name.split(" ");
 
@@ -52,7 +52,7 @@ function undo() {
  * 
  * @returns 
  */
-function getUrlParams() {
+export function getUrlParams() {
   var params = {};
   var queryString = window.location.search.substring(1);
   var vars = queryString.split("&");
@@ -67,7 +67,7 @@ function getUrlParams() {
  * Changes the url params
  * @param {string} newURI The new URI
  */
-function changeUrlParams(newURI) {
+export function changeUrlParams(newURI) {
   window.history.replaceState({}, document.title, newURI);
 }
 
